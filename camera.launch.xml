@@ -1,0 +1,133 @@
+<launch>
+      <!-- Camera driver -->
+      <!-- <include file="$(find-pkg-share v4l2_camera)/launch/v4l2_camera.launch.py">
+        <arg name="image_topic" value="image_rect_color"/>
+        <arg name="image_topic" value="image_raw"/>
+        <arg name="camera_name" value="camera0"/>
+        <arg name="use_v4l2_buffer_timestamps" value="true"/>
+        <arg name="v4l2_camera_namespace" value="/sensing/camera"/>
+        <arg name="hardware_id" value="camera0"/>
+        <arg name="camera_info_url" value="file://$(find-pkg-share v4l2_camera)/params/c1-camera-board-intrinsic-parameters-20260113.yaml"/>
+        <arg name="time_per_frame" value="[1, 30]"/>
+        <arg name="v4l2_camera_param_path" value="$(find-pkg-share v4l2_camera)/params/v4l2_c1_video0.param.yaml"/>
+        <arg name="rate_diagnostics_param_path" value="$(find-pkg-share v4l2_camera)/params/rate_diagnostics.param.yaml"/>
+      </include> -->
+      
+      <!-- Image proc -->
+      <!-- <node pkg="image_proc" exec="rectify_node" name="image_proc_node" output="screen" namespace="/sensing/camera/camera0">
+        <param name="approximate_sync" value="true"/>
+        <remap from="image" to="image_raw"/>
+        <remap from="image_rect" to="image_rect_color"/>
+      </node> -->
+
+      <!-- Camera driver -->
+      <!-- <include file="$(find-pkg-share v4l2_camera)/launch/v4l2_camera.launch.py">
+        <arg name="image_topic" value="image_raw"/>
+        <arg name="camera_name" value="camera6"/>
+        <arg name="use_v4l2_buffer_timestamps" value="true"/>
+        <arg name="v4l2_camera_namespace" value="/sensing/camera"/>
+        <arg name="hardware_id" value="camera6"/>
+        <arg name="v4l2_camera_param_path" value="$(find-pkg-share v4l2_camera)/params/v4l2_c2_video1.param.yaml"/>
+        <arg name="rate_diagnostics_param_path" value="$(find-pkg-share v4l2_camera)/params/rate_diagnostics.param.yaml"/>
+        <arg name="camera_info_url" value="file://$(find-pkg-share v4l2_camera)/params/c2-camera-board-intrinsic-parameters.yaml"/>
+      </include>
+   -->
+  
+  <!-- SAME CONTAINER -->
+  <group>
+    <push-ros-namespace namespace="sensing/camera/camera0"/>
+      <node_container pkg="rclcpp_components" exec="component_container" name="camera_image_proc_container" namespace="">
+        <composable_node pkg="v4l2_camera" plugin="v4l2_camera::V4L2Camera" name="v4l2_camera">
+          <param name="camera_name" value="camera0"/>
+          <param name="hardware_id" value="camera0"/>
+          <param name="video_device" value="/dev/video0"/>
+          <param name="image_topic" value="image_raw"/>
+          <param name="image_size" value="[1920, 1080]" value-sep=", "/> 
+          <param name="camera_info_url" value="file://$(find-pkg-share v4l2_camera)/params/c1-camera-board-intrinsic-parameters-20260113.yaml"/>
+          <param name="use_v4l2_buffer_timestamps" value="true"/>
+          
+          <param from="$(find-pkg-share v4l2_camera)/params/v4l2_c1_video0.param.yaml"/>
+          <param from="$(find-pkg-share v4l2_camera)/params/rate_diagnostics.param.yaml"/>
+          <extra_arg name="use_intra_process_comms" value="true"/>
+        </composable_node>
+
+        <composable_node pkg="image_proc" plugin="image_proc::RectifyNode" name="rectify_node">
+          <remap from="image" to="image_raw"/>
+          <remap from="camera_info" to="camera_info"/>
+          <remap from="image_rect" to="image_rect"/>
+          <param name="queue_size" value="10"/>
+          
+          <extra_arg name="use_intra_process_comms" value="true"/>
+        </composable_node>
+
+      </node_container>
+  </group>
+
+  <group>
+    <push-ros-namespace namespace="sensing/camera/camera6"/>
+    
+    <node_container pkg="rclcpp_components" exec="component_container" name="camera6_container" namespace="">
+      <composable_node pkg="v4l2_camera" plugin="v4l2_camera::V4L2Camera" name="v4l2_camera">
+        <param name="video_device" value="/dev/video1"/> <param name="image_size" value="[1920, 1080]"/>
+        <param name="use_v4l2_buffer_timestamps" value="true"/>
+        <param name="camera_info_url" value="file://$(find-pkg-share v4l2_camera)/params/c2-camera-board-intrinsic-parameters.yaml"/>
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+
+      <composable_node pkg="image_proc" plugin="image_proc::RectifyNode" name="rectify_node">
+        <remap from="image" to="image_raw"/>
+        <remap from="camera_info" to="camera_info"/>
+        <remap from="image_rect" to="image_rect"/>
+        <param name="approximate_sync" value="true"/>
+        <param name="queue_size" value="20"/>
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+    </node_container>
+  </group>
+
+  <!-- SEPARATE NODE CONTAINERS  -->
+  <!-- <node_container pkg="rclcpp_components" exec="component_container" name="camera0_container" namespace="/sensing/camera">
+
+    <composable_node pkg="v4l2_camera" plugin="v4l2_camera::V4L2Camera" name="v4l2_camera_0" namespace="camera0">
+      <param name="video_device" value="/dev/video0"/>
+      <param name="camera_name" value="camera0"/>
+      <param name="camera_info_url" value="file://$(find-pkg-share v4l2_camera)/params/c1-camera-board-intrinsic-parameters-20260113.yaml"/>
+      <param name="use_v4l2_buffer_timestamps" value="true"/>
+      
+      <remap from="image_raw" to="camera0/image_raw"/>
+      <remap from="camera_info" to="camera0/camera_info"/>
+      <extra_arg name="use_intra_process_comms" value="true"/>
+    </composable_node>
+
+    <composable_node pkg="image_proc" plugin="image_proc::RectifyNode" name="rectify_node_0" namespace="camera0">
+      <remap from="image" to="camera0/image_raw"/>
+      <remap from="camera_info" to="camera0/camera_info"/>
+      <remap from="image_rect" to="camera0/image_rect_color"/>
+      <extra_arg name="use_intra_process_comms" value="true"/>
+    </composable_node>
+
+  </node_container> -->
+
+  <!-- <node_container pkg="rclcpp_components" exec="component_container" name="camera6_container" namespace="/sensing/camera">
+
+    <composable_node pkg="v4l2_camera" plugin="v4l2_camera::V4L2Camera" name="v4l2_camera_6">
+      <param name="video_device" value="/dev/video1"/> 
+      <param name="camera_name" value="camera6"/>
+      <param name="camera_info_url" value="file://$(find-pkg-share v4l2_camera)/params/c2-camera-board-intrinsic-parameters.yaml"/>
+      <param name="use_v4l2_buffer_timestamps" value="true"/>
+
+      <remap from="image_raw" to="camera6/image_raw"/>
+      <remap from="camera_info" to="camera6/camera_info"/>
+      <extra_arg name="use_intra_process_comms" value="true"/>
+    </composable_node>
+
+    <composable_node pkg="image_proc" plugin="image_proc::RectifyNode" name="rectify_node_6">
+      <remap from="image" to="camera6/image_raw"/>
+      <remap from="camera_info" to="camera6/camera_info"/>
+      <remap from="image_rect" to="camera6/image_rect_color"/>
+      <extra_arg name="use_intra_process_comms" value="true"/>
+    </composable_node>
+
+  </node_container> -->
+
+</launch>
