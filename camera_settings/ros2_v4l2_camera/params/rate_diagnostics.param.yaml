@@ -1,0 +1,5 @@
+/**:
+  ros__parameters:
+    rate_diagnostics:
+      min_rate: 10.0
+      max_rate: 30.0
