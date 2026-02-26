@@ -46,7 +46,7 @@
   <group if="$(var calibrate_sensor)">
     <push-ros-namespace namespace="$(var parent_frame)/$(var camera_frame)"/>
 
-    <node pkg="extrinsic_interactive_calibrator" exec="interactive_calibrator" name="interactive_calibrator" output="screen">
+    <node pkg="interactive_camera_lidar_calibrator" exec="interactive_calibrator" name="interactive_calibrator" output="screen">
       <remap from="pointcloud" to="$(var pointcloud_topic)"/>
       <remap from="image" to="$(var image_compressed_topic)"/>
       <remap from="camera_info" to="$(var camera_info_topic)"/>
@@ -54,8 +54,9 @@
 
       <param name="camera_parent_frame" value="$(var parent_frame)"/>
       <param name="camera_frame" value="$(var camera_frame)"/>
+      <param name="use_compressed" value="true"/>
     </node>
 
-    <include file="$(find-pkg-share intrinsic_camera_calibration)/launch/optimizer.launch.xml"/>
+    <!-- <include file="$(find-pkg-share intrinsic_camera_calibration)/launch/optimizer.launch.xml"/> -->
   </group>
 </launch>
