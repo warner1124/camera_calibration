@@ -1,0 +1,28 @@
+ros2 run tf2_ros static_transform_publisher \
+  --x 0.0 --y 0.0 --z 0.0 \
+  --yaw -1.5708 --pitch 0.0 --roll -1.5708 \
+  --frame-id camera6/camera_link \
+  --child-frame-id camera6/camera_optical_link
+
+
+ros2 run tf2_ros static_transform_publisher \
+  --x 0.0 --y 0.0 --z 0.047 \
+  --yaw 0.0 --pitch 0.0 --roll 0.0 \
+  --frame-id pandar_40p_front_base_link \
+  --child-frame-id pandar_40p_front
+
+
+<node pkg="tf2_ros" exec="static_transform_publisher" name="camera6_optical_tf" output="screen" 
+      args="--x 0 --y 0 --z 0 --yaw -1.5708 --pitch 0 --roll -1.5708 --frame-id camera6/camera_link --child-frame-id camera6/camera_optical_link"/>
+
+<node pkg="tf2_ros" exec="static_transform_publisher" name="lidar_center_tf" output="screen" 
+      args="--x 0 --y 0 --z 0.047 --yaw 0 --pitch 0 --roll 0 --frame-id pandar_40p_front_base_link --child-frame-id pandar_40p_front"/>
+
+
+
+ros2 launch tier4_vehicle_launch vehicle.launch.xml \
+  vehicle_model:=sample_vehicle \
+  sensor_model:=sample_sensor_kit
+
+
+
