@@ -1,0 +1,10 @@
+ID	Label	Typical Size (L x W x H in meters)
+0	UNKNOWN	1.0, 1.0, 1.0
+1	CAR	4.5, 1.8, 1.5
+2	TRUCK	7.0, 2.5, 3.0
+3	BUS	10.0, 2.5, 3.5
+4	TRAILER	12.0, 2.5, 3.5
+5	MOTORCYCLE	2.0, 0.8, 1.5
+6	BICYCLE	1.8, 0.6, 1.5
+7	PEDESTRIAN	0.8, 0.8, 1.7
+8	ANIMAL	1.0, 0.5, 0.8
