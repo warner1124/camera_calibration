@@ -26,3 +26,4 @@ ros2 launch tier4_vehicle_launch vehicle.launch.xml \
 
 https://github.com/leo-drive/tutorial_vehicle_calibration_tools/tree/tutorial_vehicle
 
+ros2 param set /perception/object_recognition/detection/clustering/camera_lidar_fusion publish_debug_image true
