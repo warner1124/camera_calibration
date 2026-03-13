@@ -1,29 +1,48 @@
-ros2 run tf2_ros static_transform_publisher \
-  --x 0.0 --y 0.0 --z 0.0 \
-  --yaw -1.5708 --pitch 0.0 --roll -1.5708 \
-  --frame-id camera6/camera_link \
-  --child-frame-id camera6/camera_optical_link
-
-
-ros2 run tf2_ros static_transform_publisher \
-  --x 0.0 --y 0.0 --z 0.047 \
-  --yaw 0.0 --pitch 0.0 --roll 0.0 \
-  --frame-id pandar_40p_front_base_link \
-  --child-frame-id pandar_40p_front
-
-
-<node pkg="tf2_ros" exec="static_transform_publisher" name="camera6_optical_tf" output="screen" 
-      args="--x 0 --y 0 --z 0 --yaw -1.5708 --pitch 0 --roll -1.5708 --frame-id camera6/camera_link --child-frame-id camera6/camera_optical_link"/>
-
-<node pkg="tf2_ros" exec="static_transform_publisher" name="lidar_center_tf" output="screen" 
-      args="--x 0 --y 0 --z 0.047 --yaw 0 --pitch 0 --roll 0 --frame-id pandar_40p_front_base_link --child-frame-id pandar_40p_front"/>
+ros2 launch '/home/chen/autoware/src/sensor_kit/sample_sensor_kit_launch/sample_sensor_kit_launch/launch/camera.launch.xml' 
+ros2 bag play camera-test-bag/ --clock --topics /sensing/camera/camera0/image_raw /sensing/camera/camera0/camera_info
+os2 run rqt_image_view rqt_image_view
 
 
 
-ros2 launch tier4_vehicle_launch vehicle.launch.xml \
-  vehicle_model:=sample_vehicle \
-  sensor_model:=sample_sensor_kit
+colcon build --symlink-install --packages-select v4l2_camera vision_opencv
+colcon build --symlink-install --packages-select sample_sensor_kit_launch
 
-https://github.com/leo-drive/tutorial_vehicle_calibration_tools/tree/tutorial_vehicle
 
-ros2 param set /perception/object_recognition/detection/clustering/camera_lidar_fusion publish_debug_image true
+camera0
+ros2 run tf2_ros static_transform_publisher --x 0.235987 --y 0.119694 --z 3.002296 --roll 0.059152 --pitch 0.017881 --yaw -0.040708 --frame-id sensor_kit_base_link --child-frame-id camera0/camera_link
+
+  camera0/camera_link:
+    x: 0.235987
+    y: 0.119694
+    z: 3.002296
+    roll: 0.059152
+    pitch: --pitch 0.017881
+    yaw: -0.040708
+    
+    
+camera6
+
+ros2 run tf2_ros static_transform_publisher --x -0.024738 --y 0.126008 --z 3.108031 --roll -0.038780 --pitch 0.050424 --yaw -0.03 --frame-id sensor_kit_base_link --child-frame-id camera6/camera_link
+
+  camera6/camera_link:
+    x: -0.024738
+    y: 0.126008
+    z: 3.108031
+    roll: -0.038780
+    pitch: 0.050424
+    yaw: -0.03
+    
+    
+-- Create calibration data
+python3 prepare_pjlab_data.py 
+
+--Generate masks to use in extrinsic calibration
+chen@F7-A411-0:~/Downloads/SensorsCalibration-master/lidar2camera/auto_calib_v2.0/segment-anything$ python3 scripts/amg.py --checkpoint /home/chen/Downloads/SensorsCalibration-master/lidar2camera/auto_calib_v2.0/sam_vit_l_0b3195.pth --model-type vit_l --input /home/chen/Downloads/SensorsCalibration-master/lidar2camera/auto_calib_v2.0/data/camera0/3/calib.png --output /home/chen/Downloads/SensorsCalibration-master/lidar2camera/auto_calib_v2.0/data/camera0/3/
+
+
+-- Extrinsic calibration
+chen@F7-A411-0:~/Downloads/SensorsCalibration-master/lidar2camera/auto_calib_v2.0$ ./bin/run_lidar2camera  data/camera0/1/
+
+
+-- Extrinsic to TF
+python3 '/home/chen/camera-calib-test-bags/final_calibration_update.py' 
