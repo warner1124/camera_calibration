@@ -9,13 +9,13 @@ import sensor_msgs_py.point_cloud2 as pc2
 from scipy.spatial.transform import Rotation as R
 
 # --- CONFIGURATION ---
-BAG_PATH = 'rosbag2_2026_03_09-15_35_38' # Path to your .db3 folder
-IMAGE_TOPIC = '/camera0/image_raw/compressed'
-LIDAR_TOPIC = '/seyond_left_pointcloud'
-INFO_TOPIC = '/camera0/camera_info'
+BAG_PATH = '/home/chen/camera-calib-test-bags/20260312-13-calib-bags/rosbag2_2026_03_12-15_23_02' # Path to your .db3 folder
+IMAGE_TOPIC = '/sensing/camera/camera6/image_raw/compressed'
+LIDAR_TOPIC = '/sensing/lidar/left/pointcloud'
+INFO_TOPIC = '/sensing/camera/camera6/camera_info'
 
 LIDAR_FRAME = 'seyond_left'
-OPTICAL_FRAME = 'camera0/camera_optical_link'
+OPTICAL_FRAME = 'camera6/camera_optical_link'
 
 # --- DYNAMIC OUTPUT DIRECTORY ---
 # This takes 'path/to/my_bag' and makes 'my_bag_calib_data'
